@@ -14,8 +14,9 @@ import {
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { useCallback, useEffect, useState } from "react";
+import Sidebar from "../components/Sidebar";
 
-// 🎯 Custom Node (Card Style)
+// 🎯 Custom Node
 const CustomNode = ({ data }: any) => {
   return (
     <div className="bg-gray-800 text-white p-3 rounded-lg shadow-lg w-44 border border-gray-600">
@@ -28,14 +29,13 @@ const CustomNode = ({ data }: any) => {
   );
 };
 
-// 🎯 Custom Edge (Styled Label)
+// 🎯 Custom Edge
 const CustomEdge = (props: any) => {
   const [edgePath, labelX, labelY] = getBezierPath(props);
 
   return (
     <>
       <path
-        id={props.id}
         d={edgePath}
         stroke="#888"
         strokeWidth={2}
@@ -66,21 +66,92 @@ const CustomEdge = (props: any) => {
 const nodeTypes = { custom: CustomNode };
 const edgeTypes = { custom: CustomEdge };
 
-// ✅ Seed Data
+// ✅ FULL Seed Data (Correct)
 const seedNodes = [
-  { id: "1", type: "custom", position: { x: 0, y: 0 }, data: { label: "React", note: "UI library" } },
-  { id: "2", type: "custom", position: { x: 250, y: 0 }, data: { label: "Next.js", note: "Framework" } },
-  { id: "3", type: "custom", position: { x: 500, y: 0 }, data: { label: "TypeScript", note: "Typed JS" } },
-  { id: "4", type: "custom", position: { x: 0, y: 200 }, data: { label: "State Mgmt", note: "State handling" } },
-  { id: "5", type: "custom", position: { x: 250, y: 200 }, data: { label: "Component Design", note: "Reusable UI" } },
-  { id: "6", type: "custom", position: { x: 500, y: 200 }, data: { label: "Performance", note: "Optimization" } },
-  { id: "7", type: "custom", position: { x: 150, y: 400 }, data: { label: "Testing", note: "Testing strategies" } },
-  { id: "8", type: "custom", position: { x: 400, y: 400 }, data: { label: "CSS & Styling", note: "UI styling" } },
+  {
+    id: "1",
+    type: "custom",
+    position: { x: 300, y: 100 },
+    data: {
+      label: "React",
+      note: "A JavaScript library for building user interfaces using components.",
+    },
+  },
+  {
+    id: "2",
+    type: "custom",
+    position: { x: 300, y: 0 },
+    data: {
+      label: "Next.js",
+      note: "React framework with SSR, routing, and API support built in.",
+    },
+  },
+  {
+    id: "3",
+    type: "custom",
+    position: { x: 550, y: 100 },
+    data: {
+      label: "TypeScript",
+      note: "Typed superset of JavaScript that compiles to plain JS.",
+    },
+  },
+  {
+    id: "4",
+    type: "custom",
+    position: { x: 100, y: 250 },
+    data: {
+      label: "State Management",
+      note: "Patterns for managing shared application state.",
+    },
+  },
+  {
+    id: "5",
+    type: "custom",
+    position: { x: 300, y: 250 },
+    data: {
+      label: "Component Design",
+      note: "Principles for building reusable UI components.",
+    },
+  },
+  {
+    id: "6",
+    type: "custom",
+    position: { x: 500, y: 250 },
+    data: {
+      label: "Performance",
+      note: "Techniques like memoization and lazy loading.",
+    },
+  },
+  {
+    id: "7",
+    type: "custom",
+    position: { x: 200, y: 400 },
+    data: {
+      label: "Testing",
+      note: "Unit, integration, and e2e testing strategies.",
+    },
+  },
+  {
+    id: "8",
+    type: "custom",
+    position: { x: 450, y: 400 },
+    data: {
+      label: "CSS & Styling",
+      note: "Tailwind, CSS Modules, styled-components.",
+    },
+  },
 ];
 
 const seedEdges = [
   { id: "e1", source: "2", target: "1", label: "built on", type: "custom" },
-  { id: "e2", source: "1", target: "3", label: "pairs well", type: "custom" },
+  { id: "e2", source: "1", target: "3", label: "pairs well with", type: "custom" },
+  { id: "e3", source: "1", target: "4", label: "uses", type: "custom" },
+  { id: "e4", source: "1", target: "5", label: "guides", type: "custom" },
+  { id: "e5", source: "2", target: "6", label: "improves", type: "custom" },
+  { id: "e6", source: "1", target: "7", label: "requires", type: "custom" },
+  { id: "e7", source: "1", target: "8", label: "styled with", type: "custom" },
+  { id: "e8", source: "4", target: "6", label: "impacts", type: "custom" },
+  { id: "e9", source: "5", target: "6", label: "impacts", type: "custom" },
 ];
 
 export default function Home() {
@@ -88,30 +159,29 @@ export default function Home() {
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [selectedNode, setSelectedNode] = useState<any>(null);
 
-  // Load
-  useEffect(() => {
-    const saved = localStorage.getItem("graph");
+  // Load from localStorage OR seed
+  // Load (FIXED)
+useEffect(() => {
+  const saved = localStorage.getItem("graph");
 
-    if (saved) {
-      const parsed = JSON.parse(saved);
+  if (saved) {
+    const parsed = JSON.parse(saved);
 
-      const fixedNodes = parsed.nodes.map((n: any) => ({
-        ...n,
-        type: "custom",
-      }));
-
-      const fixedEdges = parsed.edges.map((e: any) => ({
-        ...e,
-        type: "custom",
-      }));
-
-      setNodes(fixedNodes);
-      setEdges(fixedEdges);
-    } else {
-      setNodes(seedNodes);
-      setEdges(seedEdges);
+    // ✅ Only use saved data if it's complete
+    if (
+      parsed.nodes?.length >= 8 &&
+      parsed.edges?.length >= 9
+    ) {
+      setNodes(parsed.nodes);
+      setEdges(parsed.edges);
+      return;
     }
-  }, [setNodes, setEdges]);
+  }
+
+  // ✅ Otherwise load full seed data
+  setNodes(seedNodes);
+  setEdges(seedEdges);
+}, [setNodes, setEdges]);
 
   // Save
   useEffect(() => {
@@ -119,40 +189,58 @@ export default function Home() {
   }, [nodes, edges]);
 
   // Connect
-  const onConnect = useCallback((params: any) => {
-    const label = prompt("Enter relationship") || "relates to";
+  const onConnect = useCallback(
+    (params: any) => {
+      const label = prompt("Enter relationship") || "relates to";
 
-    setEdges((eds) =>
-      addEdge(
-        {
-          ...params,
-          id: Date.now().toString(),
-          label,
-          type: "custom",
-        },
-        eds
-      )
-    );
-  }, [setEdges]);
+      setEdges((eds) =>
+        addEdge(
+          {
+            ...params,
+            id: Date.now().toString(),
+            label,
+            type: "custom",
+          },
+          eds
+        )
+      );
+    },
+    [setEdges]
+  );
 
   const onNodeClick = (_: any, node: any) => {
-    setSelectedNode(node);
-  };
+  setSelectedNode({
+    ...node,
+    data: {
+      label: node.data?.label || "",
+      note: node.data?.note || "",
+    },
+  });
+};
 
   const updateNode = (field: "label" | "note", value: string) => {
-    setNodes((nds) =>
-      nds.map((n) =>
-        n.id === selectedNode.id
-          ? { ...n, data: { ...n.data, [field]: value } }
-          : n
-      )
-    );
+  setNodes((nds) =>
+    nds.map((n) =>
+      n.id === selectedNode.id
+        ? {
+            ...n,
+            data: {
+              ...n.data,
+              [field]: value,
+            },
+          }
+        : n
+    )
+  );
 
-    setSelectedNode({
-      ...selectedNode,
-      data: { ...selectedNode.data, [field]: value },
-    });
-  };
+  setSelectedNode((prev: any) => ({
+    ...prev,
+    data: {
+      ...prev.data,
+      [field]: value,
+    },
+  }));
+};
 
   const addNode = () => {
     const newNode = {
@@ -177,25 +265,28 @@ export default function Home() {
     setSelectedNode(null);
   };
 
+  const onEdgeClick = (_: any, edge: any) => {
+    if (confirm("Delete this edge?")) {
+      setEdges((eds) => eds.filter((e) => e.id !== edge.id));
+    }
+  };
+
   return (
     <div className="h-screen bg-gray-900 text-white flex flex-col">
-
-      {/* 🔷 NAVBAR */}
-      <div className="h-14 bg-gray-800 flex items-center px-6 justify-between border-b border-gray-700 shadow">
-        <h1 className="font-semibold text-lg tracking-wide">
-          🧠 Knowledge Graph
-        </h1>
+      {/* Navbar */}
+      <div className="h-14 bg-gray-800 flex items-center px-6 justify-between border-b border-gray-700">
+        <h1 className="font-semibold text-lg">🧠 Knowledge Graph</h1>
 
         <button
           onClick={addNode}
-          className="bg-blue-600 px-4 py-1 rounded hover:bg-blue-500"
+          className="bg-blue-600 px-4 py-1 rounded"
         >
           + Add Node
         </button>
       </div>
 
       <div className="flex flex-1">
-        {/* GRAPH */}
+        {/* Graph */}
         <div className="flex-1">
           <ReactFlow
             nodes={nodes}
@@ -206,12 +297,12 @@ export default function Home() {
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
             onNodeClick={onNodeClick}
+            onEdgeClick={onEdgeClick}
             fitView
           >
-            <Background color="#555" />
+            <Background />
             <Controls />
 
-            {/* Arrow marker */}
             <svg>
               <defs>
                 <marker
@@ -229,30 +320,13 @@ export default function Home() {
           </ReactFlow>
         </div>
 
-        {/* SIDEBAR */}
+        {/* Sidebar */}
         {selectedNode && (
-          <div className="w-80 p-4 bg-gray-800 border-l border-gray-700">
-            <h2 className="font-bold mb-2">Node Details</h2>
-
-            <input
-              className="w-full p-2 mb-2 bg-gray-700 border border-gray-600 rounded"
-              value={selectedNode.data.label}
-              onChange={(e) => updateNode("label", e.target.value)}
-            />
-
-            <textarea
-              className="w-full p-2 mb-3 bg-gray-700 border border-gray-600 rounded"
-              value={selectedNode.data.note}
-              onChange={(e) => updateNode("note", e.target.value)}
-            />
-
-            <button
-              onClick={deleteNode}
-              className="bg-red-600 w-full p-2 rounded"
-            >
-              Delete Node
-            </button>
-          </div>
+          <Sidebar
+            node={selectedNode}
+            onChange={updateNode}
+            onDelete={deleteNode}
+          />
         )}
       </div>
     </div>

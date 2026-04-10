@@ -1,35 +1,38 @@
 "use client";
 
-import { GraphNode } from "../types";
-
 type Props = {
-  node: GraphNode;
+  node: any;
   onChange: (field: "label" | "note", value: string) => void;
   onDelete: () => void;
 };
 
 export default function Sidebar({ node, onChange, onDelete }: Props) {
-  return (
-    <div className="w-80 p-4 border-l bg-white shadow-lg">
-      <h2 className="text-lg font-bold mb-3">Node Details</h2>
+  if (!node) return null;
 
-      <label className="text-sm">Title</label>
+  return (
+    <div className="w-80 p-4 bg-gray-900 border-l border-gray-700 text-white">
+      <h2 className="text-lg font-bold mb-4">Node Details</h2>
+
+      {/* Title */}
+      <label className="text-sm text-gray-400">Title</label>
       <input
-        className="w-full border p-2 mb-3 rounded"
-        value={node.data.label}
+        className="w-full p-2 mt-1 mb-4 bg-gray-800 border border-gray-600 rounded outline-none focus:border-blue-500"
+        value={node.data?.label || ""}
         onChange={(e) => onChange("label", e.target.value)}
       />
 
-      <label className="text-sm">Note</label>
+      {/* Note */}
+      <label className="text-sm text-gray-400">Note</label>
       <textarea
-        className="w-full border p-2 mb-4 rounded"
-        value={node.data.note}
+        className="w-full p-2 mt-1 mb-4 bg-gray-800 border border-gray-600 rounded outline-none focus:border-blue-500"
+        value={node.data?.note || ""}
         onChange={(e) => onChange("note", e.target.value)}
       />
 
+      {/* Delete */}
       <button
         onClick={onDelete}
-        className="bg-red-500 text-white px-3 py-2 rounded w-full"
+        className="bg-red-600 hover:bg-red-500 w-full p-2 rounded mt-2"
       >
         Delete Node
       </button>
